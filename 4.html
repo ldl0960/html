@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扫雷-高级</title>
+    <style>
+        body{
+            display:grid;
+            background-color: #F0F0F0;
+            justify-content: center;
+        }
+        .box{
+            display: flex;
+            flex-wrap:wrap;
+        }
+        .time{
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .item{
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .circle{
+            border: 10px solid #a33939;
+            border-radius: 100%;
+        }
+
+        .hide{
+            background-color: #D3D3D3;
+            border-top: 2px solid white;
+            border-left: 2px solid white;
+            border-right: 2px solid #ccc;
+            border-bottom: 2px solid #ccc;
+        }
+
+        .hide>*{
+            display: none;
+        }
+
+        .info::after{
+            position: relative;
+            top: 2px;
+            left: 1px;
+            content: url('flag(2).jpg');
+            height: 30px;
+            width: 30px;
+        }
+        .message{
+            display: inline-block;
+            font-size: 14px;
+        }
+        
+        .number-1 {
+            color: blue;
+        }
+
+       .number-2 {
+            color: green;
+        }
+
+       .number-3 {
+            color: red;
+        }
+
+       .number-4 {
+            color: darkblue;
+        }
+
+       .number-5 {
+            color: purple;
+        }
+
+       .number-6 {
+            color: teal;
+        }
+
+       .number-7 {
+            color: black;
+        }
+
+       .number-8 {
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex;justify-content: space-between;">
+        <div class="message"></div>
+        <div class="time"></div>
+    </div>
+    <div class="box"></div>
+</body>
+<SCript>
+    const rows = 16
+    const cols = 30
+    let max = 99
+    const size =30
+    const result=[]
+    let minesCount =0
+    const mines =[]
+    const Xnum=[]
+    const Ynum=[]
+    let k=0
+    let i=0
+    let j=0
+    let time=0
+    let time_=0
+    while(Ynum.length<max){
+        j = Math.floor(Math.random() * rows);
+        k = Math.floor(Math.random() * cols);
+        let isDuplicate = false;
+        for (let index = 0; index < Xnum.length; index++) {
+            if (Xnum[index] === j && Ynum[index] === k) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        if (!isDuplicate) {
+            Xnum.push(j);
+            Ynum.push(k);
+        }
+    }
+    for(i=0;i< Math.min(Xnum.length, Ynum.length);i++){
+        mines[Xnum[i]+'-'+Ynum[i]]=1
+    }
+    console.log(Xnum,Ynum)
+    for(i=0;i<rows;i++){
+        for(j=0;j<cols;j++){
+            //Math.random()>0.8
+            minesCount +=mines[i+'-'+j] ||0
+        }
+    }
+    const box = document.querySelector('.box')
+    const message = document.querySelector('.message')
+    message.innerHTML =`地雷：<div class="number-3" style="display: inline-block;">${minesCount}</div>`
+    const resultDiv = document.querySelector('time')
+    time.innerHTML =time_
+    for(let i=0;i<rows;i++){
+        for(let j=0;j<cols;j++){
+            const isMines = mines[i + '-' + j ]
+            const number = Object.values({
+                0:mines[`${i-1}-${j-1}`],
+                1:mines[`${i-1}-${j}`],
+                2:mines[`${i-1}-${j+1}`],
+                3:mines[`${i}-${j-1}`],
+                4:mines[`${i}-${j+1}`],
+                5:mines[`${i+1}-${j-1}`],
+                6:mines[`${i+1}-${j}`],
+                7:mines[`${i+1}-${j+1}`],
+            }).filter(v=>v).length
+            result.push(`<div class="item hide" data-v="${i}-${j}"
+                style="width:${size}px;height:${size}px"
+            >
+            ${isMines ? `<div class="circle"></div>` : `<div class="number number-${number ? number : ''}">${number ? number : ''}</div>`}
+            </div>`)
+        }
+    }
+    box.style.width=`${cols*size}px`
+    box.style.height=`${rows*size}px`
+    box.innerHTML = result.join('')
+    box.querySelectorAll('.item').forEach(v =>{
+        v.addEventListener('click',e=>{
+            if (!v.classList.contains('info')){
+                v.classList.remove('hide')
+                if(minesCount === box.querySelectorAll('.hide').length){
+                    alert("你赢了！"),100;clearInterval(intervalId);
+                } else if (v.querySelector('.circle')){
+                    box.querySelectorAll('.item').forEach(el => {
+                        if (el.querySelector('.circle')) el.classList.remove('hide'); 
+                    });
+                    setTimeout(() => alert('你被炸死了'), 100);
+                }else if(v.innerText.trim()===''){
+                    const indexs = v.getAttribute('data-v').split('-').map(v =>Number(v))
+                    const loop = (indexs) =>{
+                        [
+                            [indexs[0]-1,indexs[1]-1],
+                            [indexs[0]-1,indexs[1]],
+                            [indexs[0]-1,indexs[1]+1],
+                            [indexs[0],indexs[1]-1],
+                            [indexs[0],indexs[1]+1],
+                            [indexs[0]+1,indexs[1]-1],
+                            [indexs[0]+1,indexs[1]],
+                            [indexs[0]+1,indexs[1]+1],
+                        ].forEach(subIndexs =>{
+                            const el = document.querySelector(`[data-v="${subIndexs.join('-')}"]`)
+                            if(el){
+                            const text =el.querySelector('.number').innerText.trim()
+                            if(el.className.indexOf('hide') >= 0 && text ===''){
+                                if (!el.classList.contains('info')){el.classList.remove('hide')}
+                                
+                                loop(subIndexs)
+                            }else{
+                                if (!el.classList.contains('info')){el.classList.remove('hide')}
+                            }
+                            }
+                        })
+                    }
+                    loop(indexs)
+            } else {
+                // 点击数字时，处理九宫格逻辑
+                const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
+                const neighbors = [
+                    [indexs[0] - 1, indexs[1] - 1],
+                    [indexs[0] - 1, indexs[1]],
+                    [indexs[0] - 1, indexs[1] + 1],
+                    [indexs[0], indexs[1] - 1],
+                    [indexs[0], indexs[1] + 1],
+                    [indexs[0] + 1, indexs[1] - 1],
+                    [indexs[0] + 1, indexs[1]],
+                    [indexs[0] + 1, indexs[1] + 1],
+                ];
+                const markedCount = neighbors.filter(([i, j]) => {
+                    const el = document.querySelector(`[data-v="${i}-${j}"]`);
+                    return el && el.classList.contains('info');
+                }).length;
+                    const currentNumber = parseInt(v.innerText);
+                    if (markedCount === currentNumber) {
+                        neighbors.forEach(([i, j]) => {
+                            const el = document.querySelector(`[data-v="${i}-${j}"]`);
+                            if (el &&!el.classList.contains('info') && el.classList.contains('hide')) {
+                                el.classList.remove('hide');
+                                if (el.innerText.trim() === '') {
+                                    const newIndexs = [i, j];
+                                    const newLoop = (newIndexs) => {
+                                        [
+                                            [newIndexs[0] - 1, newIndexs[1] - 1],
+                                            [newIndexs[0] - 1, newIndexs[1]],
+                                            [newIndexs[0] - 1, newIndexs[1] + 1],
+                                            [newIndexs[0], newIndexs[1] - 1],
+                                            [newIndexs[0], newIndexs[1] + 1],
+                                            [newIndexs[0] + 1, newIndexs[1] - 1],
+                                            [newIndexs[0] + 1, newIndexs[1]],
+                                            [newIndexs[0] + 1, newIndexs[1] + 1],
+                                        ].forEach(subIndexs => {
+                                            const subEl = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
+                                            if (subEl) {
+                                                const text = subEl.querySelector('.number').innerText.trim();
+                                                if (subEl.className.indexOf('hide') >= 0 && text === '') {
+                                                    subEl.classList.remove('hide');
+                                                    newLoop(subIndexs);
+                                                } else {
+                                                    subEl.classList.remove('hide');
+                                                }
+                                            }
+                                        });
+                                    };
+                                    newLoop(newIndexs);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        })
+        v.addEventListener('contextmenu', e => {
+            if (v.classList.contains('hide')){
+                v.classList.toggle('info')
+                message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`
+            }
+            e.preventDefault()
+        })
+    })
+    
+    const intervalId = setInterval(() => {
+        time_++;
+        const timeDiv = document.querySelector('.time');
+        timeDiv.innerHTML  = `时间：<div class="number-3" style="display: inline-block;">${time_}</div>`;
+    }, 1000);
+</SCript>
+
+</html>
