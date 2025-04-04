@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 设置字符编码为 UTF-8 -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- 使用webkit渲染引擎 -->
+    <meta name="renderer" content="webkit"> 
+    <!-- 设置视口，初始缩放为 1，最大缩放为 1，禁止用户手动缩放 -->
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1, user-scalable=0">
+    <!-- 设置网页关键词 -->
+    <meta name="keywords" content="扫雷, saolei">
+
+    <!-- 设置网页标题 -->
+    <title>扫雷游戏网页版 - Minesweeper</title>
+
+    <!-- 引入外部 JavaScript 文件 -->
+    <script src="./扫雷/gfs.js.下载"></script>
+    <script src="./扫雷/ns13.js.下载"></script>
+
+    <style>
+        /* 全局样式，去除 body 的默认外边距 */
+        body {
+            margin: 0;
+        }
+
+        /* 输入框样式，设置高度和宽度 */
+        input {
+            height: 1.5rem;
+            width: 3.8rem;
+        }
+
+        /* 表情按钮正常状态样式 */
+        #face {
+            border: 2px solid #808080;
+            border-left-color: #fff;
+            border-top-color: #fff;
+        }
+
+        /* 表情按钮点击状态样式 */
+        #face:active {
+            border: 2px solid #808080;
+            border-bottom: 1px solid #808080; 
+            border-right: 1px solid #808080; 
+        }
+
+        /* 表格样式，合并边框 */
+        table {
+            border-collapse: collapse;
+        }
+
+        /* 带有内边距的表格样式 */
+        .pad {
+            border: 2px solid #808080;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+
+        /* 复选框样式，垂直居中，设置高度和宽度 */
+        input[type=checkbox] {
+            vertical-align: middle;
+            height: 1.19rem;
+            width: 1.5rem;
+        }
+
+        /* 可点击链接样式 */
+        .clk {
+            text-decoration: underline;
+            cursor: pointer;
+            color: blue;
+        }
+
+        /* 弹出框刷新状态样式 */
+        #ai_assistant .popver[refresh]::after {
+            content: "刷新";
+        }
+
+        /* 弹出框复制状态样式 */
+        #ai_assistant .popver[copy]::after {
+            content: "undefined";
+        }
+
+        /* 弹出框展开侧边栏状态样式 */
+        #ai_assistant .popver[expandSidebar]::after {
+            content: "undefined";
+        }
+
+        /* 弹出框设置状态样式 */
+        #ai_assistant .popver[setting]::after {
+            content: "undefined";
+        }
+
+        /* 复制按钮背景颜色样式 */
+        #clip_copy, #web-copy-btn-wk {
+            background: #215476 !important;
+        }
+
+        /* 选项头部链接颜色样式 */
+        .option-head a {
+            color: #215476 !important;
+        }
+
+        /* 主机列表链接颜色样式 */
+        #option .hostList .list-group a {
+            color: #215476 !important;
+        }
+
+        /* 复制成功提示颜色样式 */
+        #popup .copy .tips.success {
+            color: #215476 !important;
+        }
+
+        /* 选项中的 SVG 图标填充颜色样式 */
+        #popup .option svg path {
+            fill: #215476 !important;
+        }
+    </style>
+
+    <!-- 定义 JavaScript 变量 -->
+    <script>
+        var shou = "收起";
+        var shez = "设置";
+    </script>
+
+    <!-- 设置基础链接和目标窗口 -->
+    <base href="." target="_top">
+</head>
+<body bgcolor="#f7f7f0" onload="night();start();setTimeout(ad, 500);">
+    <br>
+    <center>
+        <!-- 网页标题 -->
+        <div>
+            <b>网页扫雷游戏</b>
+        </div>
+
+        <!-- 难度选择链接 -->
+        <div style="margin-top: 0.8rem;">
+            <a class="clk" onclick="_123(1)">基础</a>
+            &nbsp;
+            <a class="clk" onclick="_123(2)">中级</a>
+            &nbsp;
+            <a class="clk" onclick="_123(3)">专家</a>
+            &nbsp;
+            <a class="clk" onclick="_123(4)">满屏</a>
+            &nbsp;
+            <a class="clk" onclick="_123(5)">自定义</a>
+        </div>
+
+        <!-- 自定义难度设置区域，初始隐藏 -->
+        <div id="custom" style="display: none; margin-top: 5px;">
+            横
+            <input id="hm" type="number" value="40">
+            竖
+            <input id="vm" type="number" value="24">
+            雷
+            <input id="mm" type="number" value="199">
+            <input type="button" onclick="udf()" value="确定">
+        </div>
+
+        <!-- 游戏界面表格 -->
+        <table style="margin-top: 0.8rem; border-radius: 6px; background: #cccccc;">
+            <tbody>
+                <tr>
+                    <td style="padding: 9px;">
+                        <!-- 剩余雷数显示表格 -->
+                        <table id="p42" class="pad" style="height: 34px; width: 404px;">
+                            <tbody>
+                                <tr>
+                                    <td width="50%">
+                                        <!-- 剩余雷数显示画布 -->
+                                        <canvas id="rm" height="23" width="39"></canvas>
+                                    </td>
+                                    <td align="center" onmouseup="_45()" style="padding: 0 8px 0 8px;">
+                                        <!-- 表情按钮 -->
+                                        <img id="face" src="data:img/gif;base64,R0lGODlhFQAVAJEAAAAAAP//AL29vQAAACH5BAAHAP8ALAAAAAAVABUAAAJAlI+py50AoUMwWCsduBy33XXAAoaiUlZY+nBq8MKUSY9HSbtzft4X/vu1MCLhcBXRoXgyBlD5AWYmgsiUis0yCgA7">
+                                    </td>
+                                    <td width="50%" align="right">
+                                        <!-- 游戏时间显示画布 -->
+                                        <canvas id="es" height="23" width="39"></canvas>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- 游戏主画布 -->
+                        <canvas id="paf" class="pad" style="margin-top: 6px;" width="400" height="400"></canvas>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 成绩链接 -->
+        <div style="margin-top: 2rem;">
+            <a id="ss"></a>
+        </div>
+
+        <!-- 自动标雷和夜间模式设置 -->
+        <div style="width: 90%; text-align: left; margin-top: 3rem;">
+            <span style="vertical-align: middle">自动标雷</span>
+            <input type="checkbox" checked="" id="af" onclick="saf()">
+            <span style="float: right">
+                夜间
+                <input type="checkbox" id="bcolor" onclick="bcolor()">
+            </span>
+        </div>
+
+
+        <!-- 鼠标设置区域 -->
+        <div style="width: 90%; text-align: left; margin-top: 3rem;">
+            <a id="setm" class="clk" onclick="mouse2()">设置</a>
+            <div id="_mouse" style="border: solid 1px; display: none; padding: 0.5rem;">
+                <br>
+                <br>
+                <i>左键</i>
+                <br>
+                <br>
+                <input type="radio" name="mp1" value="0" onclick="_save(0, 0);">按下时
+                <input type="radio" name="mp1" value="1" onclick="_save(0, 1);">弹起时
+                <br>
+                <br>
+                <br>
+                <i>右键</i>
+                <br>
+                <br>
+                <input type="radio" name="mp2" value="0" onclick="_save(1, 0);">按下时
+                <input type="radio" name="mp2" value="1" onclick="_save(1, 1);">弹起时
+                <br>
+                <br>
+            </div>
+            <br><br>
+
+            <!-- 触摸设置区域 -->
+            <a id="sett" class="clk" onclick="touch2()">设置</a>
+            <div id="_touch" style="border: solid 1px; display: none; padding: 0.5rem;">
+                <i>触击效果</i>
+                <br>
+                <br>
+                <input type="radio" name="tpn" value="0" checked="" onclick="_save(2, 0); smore(0);">标记
+                <input type="radio" name="tpn" value="1" onclick="_save(2, 1); smore(1);">直开
+                <br><br>
+                <br>
+                <div id="thint" style="display: none;">
+                    <i>直开模式下的标记方法</i>
+                    <br>
+                    <br>
+                    长按
+                </div>
+                <div id="topen" style="display: none;">
+                    <i>标记模式下的打开方法</i>
+                    <br>
+                    <br>
+                    <input type="radio" name="opn" value="0" checked="" onclick="_save(3, 0)">长按
+                    <input type="radio" name="opn" value="1" onclick="_save(3, 1)">快点三次
+                    <br>
+                    <br>
+                </div>
+            </div>
+            <br><br>
+            <br>
+        </div>
+
+        <!-- 加载广告的 JavaScript 函数 -->
+        <script>
+            function ad() {
+                document.getElementById("gg").src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2872916894005511";
+            }
+        </script>
+
+        <div style="margin-top: 6rem; width: 90%"></div>
+
+        <!-- 版本信息和版权信息 -->
+        <div style="margin-top: 2rem; word-break: keep-all">
+            <span id="ver" style="display: none;"></span>
+            <br><br>
+            <hr width="90%">
+            <br>
+        </div>
+        <br><br><br><br>
+    </center>
+</body>
+</html>
+    
