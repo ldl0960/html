@@ -297,7 +297,7 @@ box.querySelectorAll('.item').forEach(v => {
             const currentTime = Date.now();
             const timeDifference = currentTime - lastClickTime;
 
-            if (timeDifference < 300) {
+            if (timeDifference < 200) {
                 // 双击操作，进行打开
                 clearTimeout(clickTimer);
                 handleClick();
@@ -307,7 +307,7 @@ box.querySelectorAll('.item').forEach(v => {
                 lastClickTime = currentTime;
                 clickTimer = setTimeout(() => {
                     handleMark();
-                }, 300);
+                }, 200);
             }
         });
     } else {
