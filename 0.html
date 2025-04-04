@@ -182,6 +182,7 @@ const isMobile = 'ontouchstart' in window;
 // 为每个格子添加事件监听器
 box.querySelectorAll('.item').forEach(v => {
     let lastClickTime = 0;
+    let clickTimer;
 
     const handleClick = () => {
         if (!v.classList.contains('info')) {
@@ -294,13 +295,16 @@ box.querySelectorAll('.item').forEach(v => {
             const timeDifference = currentTime - lastClickTime;
 
             if (timeDifference < 300) {
-                // 双击操作，进行标记
-                handleMark();
+                // 双击操作，进行打开
+                clearTimeout(clickTimer);
+                handleClick();
                 lastClickTime = 0;
             } else {
-                // 单击操作，进行翻开
-                handleClick();
+                // 单击操作，先设置定时器
                 lastClickTime = currentTime;
+                clickTimer = setTimeout(() => {
+                    handleMark();
+                }, 300);
             }
         });
     } else {
@@ -319,6 +323,7 @@ const intervalId = setInterval(() => {
     const timeDiv = document.querySelector('.time');
     timeDiv.innerHTML = `时间：<div class="number-3" style="display: inline-block;">${time_}</div>`;
 }, 1000);
+    
     
 </SCript>
 
