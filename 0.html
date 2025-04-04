@@ -114,6 +114,7 @@ let j = 0;
 let time = 0;
 let time_ = 0;
 
+// 生成随机地雷位置
 while (Ynum.length < max) {
     j = Math.floor(Math.random() * rows);
     k = Math.floor(Math.random() * cols);
@@ -130,6 +131,7 @@ while (Ynum.length < max) {
     }
 }
 
+// 标记地雷位置并计算地雷总数
 for (i = 0; i < Math.min(Xnum.length, Ynum.length); i++) {
     mines[Xnum[i] + '-' + Ynum[i]] = 1;
 }
@@ -140,12 +142,14 @@ for (i = 0; i < rows; i++) {
     }
 }
 
+// 获取页面元素
 const box = document.querySelector('.box');
 const message = document.querySelector('.message');
 message.innerHTML = `地雷：<div class="number-3" style="display: inline-block;">${minesCount}</div>`;
 const timeDiv = document.querySelector('.time');
 timeDiv.innerHTML = time_;
 
+// 生成扫雷格子
 for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
         const isMines = mines[i + '-' + j];
@@ -167,14 +171,121 @@ for (let i = 0; i < rows; i++) {
     }
 }
 
+// 设置扫雷区域大小并插入格子
 box.style.width = `${cols * size}px`;
 box.style.height = `${rows * size}px`;
 box.innerHTML = result.join('');
 
+// 判断是否为移动端
 const isMobile = 'ontouchstart' in window;
 
+// 为每个格子添加事件监听器
 box.querySelectorAll('.item').forEach(v => {
     let lastClickTime = 0;
+
+    const handleClick = () => {
+        if (!v.classList.contains('info')) {
+            v.classList.remove('hide');
+            if (minesCount === box.querySelectorAll('.hide').length) {
+                alert("你赢了！");
+                clearInterval(intervalId);
+            } else if (v.querySelector('.circle')) {
+                box.querySelectorAll('.item').forEach(el => {
+                    if (el.querySelector('.circle')) el.classList.remove('hide');
+                });
+                setTimeout(() => alert('你被炸死了'), 100);
+            } else if (v.innerText.trim() === '') {
+                const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
+                const loop = (indexs) => {
+                    [
+                        [indexs[0] - 1, indexs[1] - 1],
+                        [indexs[0] - 1, indexs[1]],
+                        [indexs[0] - 1, indexs[1] + 1],
+                        [indexs[0], indexs[1] - 1],
+                        [indexs[0], indexs[1] + 1],
+                        [indexs[0] + 1, indexs[1] - 1],
+                        [indexs[0] + 1, indexs[1]],
+                        [indexs[0] + 1, indexs[1] + 1],
+                    ].forEach(subIndexs => {
+                        const el = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
+                        if (el) {
+                            const text = el.querySelector('.number').innerText.trim();
+                            if (el.className.indexOf('hide') >= 0 && text === '') {
+                                if (!el.classList.contains('info')) {
+                                    el.classList.remove('hide');
+                                }
+                                loop(subIndexs);
+                            } else {
+                                if (!el.classList.contains('info')) {
+                                    el.classList.remove('hide');
+                                }
+                            }
+                        }
+                    });
+                };
+                loop(indexs);
+            } else {
+                const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
+                const neighbors = [
+                    [indexs[0] - 1, indexs[1] - 1],
+                    [indexs[0] - 1, indexs[1]],
+                    [indexs[0] - 1, indexs[1] + 1],
+                    [indexs[0], indexs[1] - 1],
+                    [indexs[0], indexs[1] + 1],
+                    [indexs[0] + 1, indexs[1] - 1],
+                    [indexs[0] + 1, indexs[1]],
+                    [indexs[0] + 1, indexs[1] + 1],
+                ];
+                const markedCount = neighbors.filter(([i, j]) => {
+                    const el = document.querySelector(`[data-v="${i}-${j}"]`);
+                    return el && el.classList.contains('info');
+                }).length;
+                const currentNumber = parseInt(v.innerText);
+                if (markedCount === currentNumber) {
+                    neighbors.forEach(([i, j]) => {
+                        const el = document.querySelector(`[data-v="${i}-${j}"]`);
+                        if (el &&!el.classList.contains('info') && el.classList.contains('hide')) {
+                            el.classList.remove('hide');
+                            if (el.innerText.trim() === '') {
+                                const newIndexs = [i, j];
+                                const newLoop = (newIndexs) => {
+                                    [
+                                        [newIndexs[0] - 1, newIndexs[1] - 1],
+                                        [newIndexs[0] - 1, newIndexs[1]],
+                                        [newIndexs[0] - 1, newIndexs[1] + 1],
+                                        [newIndexs[0], newIndexs[1] - 1],
+                                        [newIndexs[0], newIndexs[1] + 1],
+                                        [newIndexs[0] + 1, newIndexs[1] - 1],
+                                        [newIndexs[0] + 1, newIndexs[1]],
+                                        [newIndexs[0] + 1, newIndexs[1] + 1],
+                                    ].forEach(subIndexs => {
+                                        const subEl = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
+                                        if (subEl) {
+                                            const text = subEl.querySelector('.number').innerText.trim();
+                                            if (subEl.className.indexOf('hide') >= 0 && text === '') {
+                                                subEl.classList.remove('hide');
+                                                newLoop(subIndexs);
+                                            } else {
+                                                subEl.classList.remove('hide');
+                                            }
+                                        }
+                                    });
+                                };
+                                newLoop(newIndexs);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    };
+
+    const handleMark = () => {
+        if (v.classList.contains('hide')) {
+            v.classList.toggle('info');
+            message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`;
+        }
+    };
 
     if (isMobile) {
         v.addEventListener('touchstart', function (e) {
@@ -184,223 +295,31 @@ box.querySelectorAll('.item').forEach(v => {
 
             if (timeDifference < 300) {
                 // 双击操作，进行标记
-                if (v.classList.contains('hide')) {
-                    v.classList.toggle('info');
-                    message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`;
-                }
+                handleMark();
                 lastClickTime = 0;
             } else {
                 // 单击操作，进行翻开
-                if (!v.classList.contains('info')) {
-                    v.classList.remove('hide');
-                    if (minesCount === box.querySelectorAll('.hide').length) {
-                        alert("你赢了！");
-                        clearInterval(intervalId);
-                    } else if (v.querySelector('.circle')) {
-                        box.querySelectorAll('.item').forEach(el => {
-                            if (el.querySelector('.circle')) el.classList.remove('hide');
-                        });
-                        setTimeout(() => alert('你被炸死了'), 100);
-                    } else if (v.innerText.trim() === '') {
-                        const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
-                        const loop = (indexs) => {
-                            [
-                                [indexs[0] - 1, indexs[1] - 1],
-                                [indexs[0] - 1, indexs[1]],
-                                [indexs[0] - 1, indexs[1] + 1],
-                                [indexs[0], indexs[1] - 1],
-                                [indexs[0], indexs[1] + 1],
-                                [indexs[0] + 1, indexs[1] - 1],
-                                [indexs[0] + 1, indexs[1]],
-                                [indexs[0] + 1, indexs[1] + 1],
-                            ].forEach(subIndexs => {
-                                const el = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
-                                if (el) {
-                                    const text = el.querySelector('.number').innerText.trim();
-                                    if (el.className.indexOf('hide') >= 0 && text === '') {
-                                        if (!el.classList.contains('info')) {
-                                            el.classList.remove('hide');
-                                        }
-                                        loop(subIndexs);
-                                    } else {
-                                        if (!el.classList.contains('info')) {
-                                            el.classList.remove('hide');
-                                        }
-                                    }
-                                }
-                            });
-                        };
-                        loop(indexs);
-                    } else {
-                        const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
-                        const neighbors = [
-                            [indexs[0] - 1, indexs[1] - 1],
-                            [indexs[0] - 1, indexs[1]],
-                            [indexs[0] - 1, indexs[1] + 1],
-                            [indexs[0], indexs[1] - 1],
-                            [indexs[0], indexs[1] + 1],
-                            [indexs[0] + 1, indexs[1] - 1],
-                            [indexs[0] + 1, indexs[1]],
-                            [indexs[0] + 1, indexs[1] + 1],
-                        ];
-                        const markedCount = neighbors.filter(([i, j]) => {
-                            const el = document.querySelector(`[data-v="${i}-${j}"]`);
-                            return el && el.classList.contains('info');
-                        }).length;
-                        const currentNumber = parseInt(v.innerText);
-                        if (markedCount === currentNumber) {
-                            neighbors.forEach(([i, j]) => {
-                                const el = document.querySelector(`[data-v="${i}-${j}"]`);
-                                if (el &&!el.classList.contains('info') && el.classList.contains('hide')) {
-                                    el.classList.remove('hide');
-                                    if (el.innerText.trim() === '') {
-                                        const newIndexs = [i, j];
-                                        const newLoop = (newIndexs) => {
-                                            [
-                                                [newIndexs[0] - 1, newIndexs[1] - 1],
-                                                [newIndexs[0] - 1, newIndexs[1]],
-                                                [newIndexs[0] - 1, newIndexs[1] + 1],
-                                                [newIndexs[0], newIndexs[1] - 1],
-                                                [newIndexs[0], newIndexs[1] + 1],
-                                                [newIndexs[0] + 1, newIndexs[1] - 1],
-                                                [newIndexs[0] + 1, newIndexs[1]],
-                                                [newIndexs[0] + 1, newIndexs[1] + 1],
-                                            ].forEach(subIndexs => {
-                                                const subEl = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
-                                                if (subEl) {
-                                                    const text = subEl.querySelector('.number').innerText.trim();
-                                                    if (subEl.className.indexOf('hide') >= 0 && text === '') {
-                                                        subEl.classList.remove('hide');
-                                                        newLoop(subIndexs);
-                                                    } else {
-                                                        subEl.classList.remove('hide');
-                                                    }
-                                                }
-                                            });
-                                        };
-                                        newLoop(newIndexs);
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
+                handleClick();
                 lastClickTime = currentTime;
             }
         });
     } else {
-        v.addEventListener('click', function (e) {
-            if (!v.classList.contains('info')) {
-                v.classList.remove('hide');
-                if (minesCount === box.querySelectorAll('.hide').length) {
-                    alert("你赢了！");
-                    clearInterval(intervalId);
-                } else if (v.querySelector('.circle')) {
-                    box.querySelectorAll('.item').forEach(el => {
-                        if (el.querySelector('.circle')) el.classList.remove('hide');
-                    });
-                    setTimeout(() => alert('你被炸死了'), 100);
-                } else if (v.innerText.trim() === '') {
-                    const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
-                    const loop = (indexs) => {
-                        [
-                            [indexs[0] - 1, indexs[1] - 1],
-                            [indexs[0] - 1, indexs[1]],
-                            [indexs[0] - 1, indexs[1] + 1],
-                            [indexs[0], indexs[1] - 1],
-                            [indexs[0], indexs[1] + 1],
-                            [indexs[0] + 1, indexs[1] - 1],
-                            [indexs[0] + 1, indexs[1]],
-                            [indexs[0] + 1, indexs[1] + 1],
-                        ].forEach(subIndexs => {
-                            const el = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
-                            if (el) {
-                                const text = el.querySelector('.number').innerText.trim();
-                                if (el.className.indexOf('hide') >= 0 && text === '') {
-                                    if (!el.classList.contains('info')) {
-                                        el.classList.remove('hide');
-                                    }
-                                    loop(subIndexs);
-                                } else {
-                                    if (!el.classList.contains('info')) {
-                                        el.classList.remove('hide');
-                                    }
-                                }
-                            }
-                        });
-                    };
-                    loop(indexs);
-                } else {
-                    const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
-                    const neighbors = [
-                        [indexs[0] - 1, indexs[1] - 1],
-                        [indexs[0] - 1, indexs[1]],
-                        [indexs[0] - 1, indexs[1] + 1],
-                        [indexs[0], indexs[1] - 1],
-                        [indexs[0], indexs[1] + 1],
-                        [indexs[0] + 1, indexs[1] - 1],
-                        [indexs[0] + 1, indexs[1]],
-                        [indexs[0] + 1, indexs[1] + 1],
-                    ];
-                    const markedCount = neighbors.filter(([i, j]) => {
-                        const el = document.querySelector(`[data-v="${i}-${j}"]`);
-                        return el && el.classList.contains('info');
-                    }).length;
-                    const currentNumber = parseInt(v.innerText);
-                    if (markedCount === currentNumber) {
-                        neighbors.forEach(([i, j]) => {
-                            const el = document.querySelector(`[data-v="${i}-${j}"]`);
-                            if (el &&!el.classList.contains('info') && el.classList.contains('hide')) {
-                                el.classList.remove('hide');
-                                if (el.innerText.trim() === '') {
-                                    const newIndexs = [i, j];
-                                    const newLoop = (newIndexs) => {
-                                        [
-                                            [newIndexs[0] - 1, newIndexs[1] - 1],
-                                            [newIndexs[0] - 1, newIndexs[1]],
-                                            [newIndexs[0] - 1, newIndexs[1] + 1],
-                                            [newIndexs[0], newIndexs[1] - 1],
-                                            [newIndexs[0], newIndexs[1] + 1],
-                                            [newIndexs[0] + 1, newIndexs[1] - 1],
-                                            [newIndexs[0] + 1, newIndexs[1]],
-                                            [newIndexs[0] + 1, newIndexs[1] + 1],
-                                        ].forEach(subIndexs => {
-                                            const subEl = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
-                                            if (subEl) {
-                                                const text = subEl.querySelector('.number').innerText.trim();
-                                                if (subEl.className.indexOf('hide') >= 0 && text === '') {
-                                                    subEl.classList.remove('hide');
-                                                    newLoop(subIndexs);
-                                                } else {
-                                                    subEl.classList.remove('hide');
-                                                }
-                                            }
-                                        });
-                                    };
-                                    newLoop(newIndexs);
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-        });
+        v.addEventListener('click', handleClick);
 
         v.addEventListener('contextmenu', function (e) {
-            if (v.classList.contains('hide')) {
-                v.classList.toggle('info');
-                message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`;
-            }
             e.preventDefault();
+            handleMark();
         });
     }
 });
 
+// 启动计时器
 const intervalId = setInterval(() => {
     time_++;
     const timeDiv = document.querySelector('.time');
     timeDiv.innerHTML = `时间：<div class="number-3" style="display: inline-block;">${time_}</div>`;
 }, 1000);
+    
 </SCript>
 
 </html>
