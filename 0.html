@@ -102,12 +102,13 @@
         <p id="aValue">翻开</p>
         <div class="time"></div>
         
-    </div>
+    </div><div style="display: flex;justify-content: center;"><button type="button" onclick="javascript:location.reload()">刷新</button></div>
     <div class="box"></div>
     <div style="display: flex;justify-content: center;">
     <button onclick="biaoji()" style="width: 25%;height: 150%;">标记</button>
     <button onclick="fankai()" style="width: 25%;height: 150%;">翻开</button>
     </div>
+    
     <script>
         const rows = 10;
         const cols = 10;
@@ -150,11 +151,11 @@
             }
         }
         function biaoji(){
-                const aValueElement = document.getElementById('aValue');
+            const aValueElement = document.getElementById('aValue');
                 dianji=0
                 aValueElement.textContent = "标记";}
         function fankai(){
-                const aValueElement = document.getElementById('aValue');
+            const aValueElement = document.getElementById('aValue');
                 dianji=1
                 aValueElement.textContent = "翻开";
             }            
