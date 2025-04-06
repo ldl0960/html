@@ -3,23 +3,29 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>扫雷测试</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>扫雷</title>
     <style>
         body {
             display: grid;
             background-color: #F0F0F0;
             justify-content: center;
+            margin: 0;
+            padding: 10px;
         }
 
        .box {
             display: flex;
             flex-wrap: wrap;
+            background-color: #D3D3D3;
+            padding: 2px;
+            border-radius: 8px;
         }
 
        .time {
             display: inline-block;
             font-size: 14px;
+            margin-bottom: 10px;
         }
 
        .item {
@@ -29,6 +35,12 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            background-color: #D3D3D3;
+            border-top: 2px solid white;
+            border-left: 2px solid white;
+            border-right: 2px solid #ccc;
+            border-bottom: 2px solid #ccc;
+            touch-action: none; /* 禁用默认触摸行为 */
         }
 
        .circle {
@@ -37,14 +49,6 @@
         }
 
        .hide {
-            background-color: #D3D3D3;
-            border-top: 2px solid white;
-            border-left: 2px solid white;
-            border-right: 2px solid #ccc;
-            border-bottom: 2px solid #ccc;
-        }
-
-       .hide > * {
             display: none;
         }
 
@@ -60,6 +64,7 @@
        .message {
             display: inline-block;
             font-size: 14px;
+            margin-bottom: 10px;
         }
 
        .number-1 {
@@ -103,233 +108,185 @@
     </div>
     <div class="box"></div>
     <script>
-// 初始化游戏参数
-const rows = 20;
-const cols = 20;
-const size = 30;
-let minesCount = 0;
-const mines = {};
-const Xnum = [];
-const Ynum = [];
-let time_ = 0;
+        const rows = 10;
+        const cols = 10;
+        const size = 40;
+        const result = [];
+        let minesCount = 0;
+        const mines = {};
+        const Xnum = [];
+        const Ynum = [];
+        let max = 10;
+        let k = 0;
+        let i = 0;
+        let j = 0;
+        let time = 0;
+        let time_ = 0;
 
-// 生成雷区
-while (Ynum.length < 20) {
-    const j = Math.floor(Math.random() * rows);
-    const k = Math.floor(Math.random() * cols);
-    if (!Xnum.includes(j) || !Ynum.includes(k)) {
-        Xnum.push(j);
-        Ynum.push(k);
-    }
-}
-Xnum.forEach((i, index) => mines[`${i}-${Ynum[index]}`] = 1);
-
-// 计算每个格子的数字
-const calculateNumber = (i, j) => {
-    return Object.values({
-        0: mines[`${i - 1}-${j - 1}`],
-        1: mines[`${i - 1}-${j}`],
-        2: mines[`${i - 1}-${j + 1}`],
-        3: mines[`${i}-${j - 1}`],
-        4: mines[`${i}-${j + 1}`],
-        5: mines[`${i + 1}-${j - 1}`],
-        6: mines[`${i + 1}-${j}`],
-        7: mines[`${i + 1}-${j + 1}`],
-    }).filter(Boolean).length;
-};
-
-// 初始化界面
-const box = document.querySelector('.box');
-const message = document.querySelector('.message');
-message.innerHTML = `地雷：<div class="number-3">${minesCount}</div>`;
-const timeDiv = document.querySelector('.time');
-
-// 生成雷区网格
-const generateGrid = () => {
-    const result = [];
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            const isMine = mines[`${i}-${j}`];
-            const number = calculateNumber(i, j);
-            result.push(`
-                <div class="item hide" data-v="${i}-${j}" 
-                    style="width:${size}px;height:${size}px">
-                    ${isMine ? '<div class="circle"></div>' : 
-                        `<div class="number number-${number}">${number || ''}</div>`}
-                </div>
-            `);
-        }
-    }
-    return result.join('');
-};
-
-// 初始化游戏
-const initGame = () => {
-    box.innerHTML = generateGrid();
-    box.style.width = `${cols * size}px`;
-    box.style.height = `${rows * size}px`;
-    time_ = 0;
-    timeDiv.innerHTML = `时间：<div class="number-3">0</div>`;
-    startTimer();
-};
-
-// 开始计时
-let intervalId;
-const startTimer = () => {
-    intervalId = setInterval(() => {
-        time_++;
-        timeDiv.innerHTML = `时间：<div class="number-3">${time_}</div>`;
-    }, 1000);
-};
-
-// 游戏结束处理
-const gameOver = (isWin) => {
-    clearInterval(intervalId);
-    box.querySelectorAll('.item').forEach(item => {
-        item.classList.remove('hide');
-    });
-    alert(isWin ? '恭喜你！胜利了！' : '很遗憾，你被炸了！');
-};
-
-// 展开空白区域
-const expandArea = (el) => {
-    const indexs = el.getAttribute('data-v').split('-').map(Number);
-    const queue = [indexs];
-    
-    while (queue.length) {
-        const [i, j] = queue.shift();
-        for (let x = -1; x <= 1; x++) {
-            for (let y = -1; y <= 1; y++) {
-                if (x === 0 && y === 0) continue;
-                const ni = i + x;
-                const nj = j + y;
-                if (ni >= 0 && ni < rows && nj >= 0 && nj < cols) {
-                    const neighbor = document.querySelector(`[data-v="${ni}-${nj}"]`);
-                    if (neighbor && neighbor.classList.contains('hide') && !neighbor.classList.contains('info')) {
-                        neighbor.classList.remove('hide');
-                        const number = neighbor.querySelector('.number').textContent;
-                        if (number === '') queue.push([ni, nj]);
-                    }
-                }
+        // 生成雷区
+        while (Ynum.length < max) {
+            j = Math.floor(Math.random() * rows);
+            k = Math.floor(Math.random() * cols);
+            if (!Xnum.includes(j) || !Ynum.includes(k)) {
+                Xnum.push(j);
+                Ynum.push(k);
             }
         }
-    }
-};
+        for (i = 0; i < Math.min(Xnum.length, Ynum.length); i++) {
+            mines[Xnum[i] + '-' + Ynum[i]] = 1;
+        }
 
-// 处理数字点击
-const handleNumberClick = (el, indexs) => {
-    const neighbors = [
-        [indexs[0] - 1, indexs[1] - 1],
-        [indexs[0] - 1, indexs[1]],
-        [indexs[0] - 1, indexs[1] + 1],
-        [indexs[0], indexs[1] - 1],
-        [indexs[0], indexs[1] + 1],
-        [indexs[0] + 1, indexs[1] - 1],
-        [indexs[0] + 1, indexs[1]],
-        [indexs[0] + 1, indexs[1] + 1],
-    ];
-    
-    const markedCount = neighbors.filter(([i, j]) => 
-        document.querySelector(`[data-v="${i}-${j}"]`)?.classList.contains('info')
-    ).length;
-    
-    if (markedCount === parseInt(el.textContent)) {
-        neighbors.forEach(([i, j]) => {
-            const neighbor = document.querySelector(`[data-v="${i}-${j}"]`);
-            if (neighbor && neighbor.classList.contains('hide') && !neighbor.classList.contains('info')) {
-                neighbor.classList.remove('hide');
-                if (neighbor.querySelector('.number').textContent === '') {
-                    expandArea(neighbor);
-                }
+        // 计算每个格子的数字
+        for (i = 0; i < rows; i++) {
+            for (j = 0; j < cols; j++) {
+                minesCount += mines[i + '-' + j] || 0;
             }
-        });
-    }
-};
+        }
 
-// 初始化事件绑定
-const initEvents = () => {
-    box.querySelectorAll('.item').forEach(v => {
-        let timeoutId = null;
-        
-        // 触摸开始
-        v.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            timeoutId = setTimeout(() => {
-                if (v.classList.contains('hide')) {
-                    v.classList.toggle('info');
-                    message.textContent = `地雷：${minesCount - [...box.querySelectorAll('.info')].length}`;
-                }
-            }, 500);
-        });
+        // 初始化界面
+        const box = document.querySelector('.box');
+        const message = document.querySelector('.message');
+        message.innerHTML = `地雷：<div class="number-3" style="display: inline-block;">${minesCount}</div>`;
+        const timeDiv = document.querySelector('.time');
+        timeDiv.innerHTML = `时间：<div class="number-3" style="display: inline-block;">0</div>`;
 
-        // 触摸结束
-        v.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            clearTimeout(timeoutId);
-            if (timeoutId) {
-                if (v.classList.contains('info')) return;
-                
-                v.classList.remove('hide');
-                if (v.querySelector('.circle')) {
-                    gameOver(false);
+        // 生成网格
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const isMines = mines[i + '-' + j];
+                const number = Object.values({
+                    0: mines[`${i - 1}-${j - 1}`],
+                    1: mines[`${i - 1}-${j}`],
+                    2: mines[`${i - 1}-${j + 1}`],
+                    3: mines[`${i}-${j - 1}`],
+                    4: mines[`${i}-${j + 1}`],
+                    5: mines[`${i + 1}-${j - 1}`],
+                    6: mines[`${i + 1}-${j}`],
+                    7: mines[`${i + 1}-${j + 1}`],
+                }).filter(v => v).length;
+                result.push(`<div class="item hide" data-v="${i}-${j}"
+                    style="width:${size}px;height:${size}px"
+                >
+                ${isMines? `<div class="circle"></div>` : `<div class="number number-${number? number : ''}">${number? number : ''}</div>`}
+                </div>`);
+            }
+        }
+        box.style.width = `${cols * size}px`;
+        box.style.height = `${rows * size}px`;
+        box.innerHTML = result.join('');
+
+        // 初始化时间
+        const intervalId = setInterval(() => {
+            time_++;
+            timeDiv.innerHTML = `时间：<div class="number-3" style="display: inline-block;">${time_}</div>`;
+        }, 1000);
+
+        // 触摸事件处理
+        box.querySelectorAll('.item').forEach(v => {
+            let isLongPress = false;
+            let touchStart = 0;
+
+            v.addEventListener('touchstart', (e) => {
+                touchStart = Date.now();
+            });
+
+            v.addEventListener('touchend', (e) => {
+                const touchEnd = Date.now();
+                const duration = touchEnd - touchStart;
+                if (duration >= 300) {
+                    // 长按处理（右键功能）
+                    isLongPress = true;
+                    if (v.classList.contains('hide')) {
+                        v.classList.toggle('info');
+                        message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`;
+                    }
                 } else {
-                    const number = v.querySelector('.number').textContent;
-                    if (number === '') {
-                        expandArea(v);
-                    } else {
-                        handleNumberClick(v, v.getAttribute('data-v').split('-').map(Number));
-                    }
-                    
-                    if (minesCount === [...box.querySelectorAll('.hide')].length) {
-                        gameOver(true);
-                    }
-                }
-            }
-            timeoutId = null;
-        });
-
-        // 触摸移动
-        v.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            clearTimeout(timeoutId);
-            timeoutId = null;
-        });
-
-        // 桌面端事件
-        v.addEventListener('click', (e) => {
-            if (e.button === 0 && !v.classList.contains('info')) {
-                v.classList.remove('hide');
-                if (v.querySelector('.circle')) {
-                    gameOver(false);
-                } else {
-                    const number = v.querySelector('.number').textContent;
-                    if (number === '') {
-                        expandArea(v);
-                    } else {
-                        handleNumberClick(v, v.getAttribute('data-v').split('-').map(Number));
-                    }
-                    
-                    if (minesCount === [...box.querySelectorAll('.hide')].length) {
-                        gameOver(true);
+                    // 短按处理（左键功能）
+                    if (!v.classList.contains('info')) {
+                        v.classList.remove('hide');
+                        checkWin();
+                        if (v.querySelector('.circle')) {
+                            gameOver();
+                        } else if (v.innerText.trim() === '') {
+                            expand(v.getAttribute('data-v').split('-').map(Number));
+                        } else {
+                            checkNeighbors(v.getAttribute('data-v').split('-').map(Number));
+                        }
                     }
                 }
-            }
+                e.preventDefault();
+            });
+
+            // 防止长按触发默认菜单
+            v.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
         });
 
-        v.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            if (v.classList.contains('hide')) {
-                v.classList.toggle('info');
-                message.textContent = `地雷：${minesCount - [...box.querySelectorAll('.info')].length}`;
-            }
-        });
-    });
-};
+        // 展开空块
+        function expand(indexs) {
+            [
+                [indexs[0] - 1, indexs[1] - 1], [indexs[0] - 1, indexs[1]], [indexs[0] - 1, indexs[1] + 1],
+                [indexs[0], indexs[1] - 1],                           [indexs[0], indexs[1] + 1],
+                [indexs[0] + 1, indexs[1] - 1], [indexs[0] + 1, indexs[1]], [indexs[0] + 1, indexs[1] + 1],
+            ].forEach(subIndexs => {
+                const el = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
+                if (el && el.className.indexOf('hide') >= 0 && !el.classList.contains('info')) {
+                    el.classList.remove('hide');
+                    if (el.innerText.trim() === '') {
+                        expand(subIndexs);
+                    }
+                }
+            });
+        }
 
-// 初始化游戏
-initGame();
-initEvents();
+        // 检查周围标记数量
+        function checkNeighbors(indexs) {
+            const neighbors = [
+                [indexs[0] - 1, indexs[1] - 1],
+                [indexs[0] - 1, indexs[1]],
+                [indexs[0] - 1, indexs[1] + 1],
+                [indexs[0], indexs[1] - 1],
+                [indexs[0], indexs[1] + 1],
+                [indexs[0] + 1, indexs[1] - 1],
+                [indexs[0] + 1, indexs[1]],
+                [indexs[0] + 1, indexs[1] + 1],
+            ];
+            const markedCount = neighbors.filter(([i, j]) => {
+                const el = document.querySelector(`[data-v="${i}-${j}"]`);
+                return el && el.classList.contains('info');
+            }).length;
+            const currentNumber = parseInt(v.innerText);
+            if (markedCount === currentNumber) {
+                neighbors.forEach(([i, j]) => {
+                    const el = document.querySelector(`[data-v="${i}-${j}"]`);
+                    if (el &&!el.classList.contains('info') && el.classList.contains('hide')) {
+                        el.classList.remove('hide');
+                        if (el.innerText.trim() === '') {
+                            expand([i, j]);
+                        }
+                    }
+                });
+            }
+        }
+
+        // 检查胜利
+        function checkWin() {
+            if (minesCount === box.querySelectorAll('.info').length) {
+                alert("你赢了！");
+                clearInterval(intervalId);
+            }
+        }
+
+        // 游戏结束
+        function gameOver() {
+            box.querySelectorAll('.item').forEach(el => {
+                if (el.querySelector('.circle')) el.classList.remove('hide');
+            });
+            setTimeout(() => alert('你被炸死了'), 100);
+            clearInterval(intervalId);
+        }
     </script>
 </body>
 
-</html>    
+</html>
