@@ -1,51 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>扫雷菜单</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>扫雷</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, sans-serif;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+            padding: 2rem;
+        }
+
+        .menu-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #1a1a1a;
+            margin-bottom: 1.5rem;
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .menu-btn {
+            padding: 0.9rem 1.5rem;
+            width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+            color: #333;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            background: #f0f0f0;
+            border-color: #d0d0d0;
+        }
+
+        .classic-link {
+            text-align: center;
+            color: #4a90e2;
+            margin-top: 1.5rem;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .classic-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
-
-<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center">
-    <div class="bg-white p-12 rounded-lg shadow-md w-full max-w-md space-y-12">
-        <h1 class="text-3xl font-bold text-center text-gray-800">扫雷菜单</h1>
-        <div class="space-y-6">
-            <a href="0.html">
-                <button class="w-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded transition duration-200">
-                    扫雷测试
-                </button>
-            </a>
-            <a href="1.html">
-                <button class="w-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded transition duration-200">
-                    扫雷 - 简单
-                </button>
-            </a>
-            <a href="2.html">
-                <button class="w-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded transition duration-200">
-                    扫雷 - 初级
-                </button>
-            </a>
-            <a href="3.html">
-                <button class="w-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded transition duration-200">
-                    扫雷 - 中级
-                </button>
-            </a>
-            <a href="4.html">
-                <button class="w-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded transition duration-200">
-                    扫雷 - 高级
-                </button>
-            </a>
-            <a href="扫雷/扫雷.html" class="block text-center text-gray-600 hover:text-gray-800 hover:underline">
-                经典
-            </a>
-        </div>
+<body>
+    <div class="menu-container">
+        <h1>扫雷游戏</h1>
+        <ul class="menu-list">
+            <li><a href="0.html"><button class="menu-btn">扫雷测试</button></a></li>
+            <li><a href="1.html"><button class="menu-btn">简单模式</button></a></li>
+            <li><a href="2.html"><button class="menu-btn">初级挑战</button></a></li>
+            <li><a href="3.html"><button class="menu-btn">中级进阶</button></a></li>
+            <li><a href="4.html"><button class="menu-btn">高级大师</button></a></li>
+        </ul>
+        <a href="扫雷/扫雷.html" class="classic-link">经典版</a>
     </div>
 </body>
-
 </html>    
