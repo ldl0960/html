@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="cn">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>扫雷-极其简单</title>
+    <title>扫雷测试</title>
     <style>
-        body{
-            display:grid;
+        body {
+            display: grid;
             background-color: #F0F0F0;
             justify-content: center;
         }
-        .box{
+
+       .box {
             display: flex;
-            flex-wrap:wrap;
-            width: 100%;
+            flex-wrap: wrap;
         }
-        .time{
+
+       .time {
             display: inline-block;
             font-size: 14px;
         }
 
-        .item{
+       .item {
             border: 1px solid #ddd;
             box-sizing: border-box;
             display: flex;
@@ -29,12 +31,12 @@
             cursor: pointer;
         }
 
-        .circle{
+       .circle {
             border: 10px solid #a33939;
             border-radius: 100%;
         }
 
-        .hide{
+       .hide {
             background-color: #D3D3D3;
             border-top: 2px solid white;
             border-left: 2px solid white;
@@ -42,24 +44,25 @@
             border-bottom: 2px solid #ccc;
         }
 
-        .hide>*{
+       .hide > * {
             display: none;
         }
 
-        .info::after{
+       .info::after {
             position: relative;
             top: 2px;
             left: 1px;
-            content: url('flag(2).jpg');
+            content: url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEA8ADwAAD/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAEAAAAAAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAcABwDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7grw/4xf8FA/h78LtDv5bDUD4r1K0VtttphDQEqpJ3XB/dgcYJQuQeCBg49k8QaDaeKdBvtMv4vPsdRt5LW4i3MvmRupVlypBGQSMgg18aftc/wDBPzQPhX+z/wCLfF3h/XdSik8MaLe6nfRakI5hcQQQNKQjxxqUZQr8FXDFh93B3eLnNXMIQX1GKffv8l/w/ofqHhdl3BWKxclxfiJ019iMVaEtH8c1eS1tZJR1teVr2+16KKK9o/KzL8b6hquk+C9XutC06DV9btrKaXT7Ga4FtHe3CxsYoWlIPlq7hVL4O0HODivyn/bM/Zs/b2/a/wDGepXcunJ4O8PX9g2lyeHfD/jfyNNurZt4ZZojc7JXdXKOzKAygDaOlfrYDj8ad5jepoGnY/Pr/gm5of7Zn7Ol6nhn4oeEYPHnhjWNVW5n1vVvGy3Oq6KspgjkKs0kvmwRRpJIIFVS0jnDjca/QQHHYUolYd6aTuJJ6mgGz//Z);
             height: 30px;
             width: 30px;
         }
-        .message{
+
+       .message {
             display: inline-block;
             font-size: 14px;
         }
-        
-        .number-1 {
+
+       .number-1 {
             color: blue;
         }
 
@@ -92,242 +95,310 @@
         }
     </style>
 </head>
+
 <body>
-    <div style="display: flex;justify-content: space-between;">
+    <div style="display: flex; justify-content: space-between;">
         <div class="message"></div>
         <div class="time"></div>
     </div>
-    <div style="margin-left: 200px;">
-        <div class="box"></div>
-    </div>
-</body>
-<SCript>
-const rows = 20;
-const cols = 20;
-const size = 30;
-const result = [];
-let minesCount = 0;
-const mines = [];
-const Xnum = [];
-const Ynum = [];
-let max = 20;
-let k = 0;
-let i = 0;
-let j = 0;
-let time = 0;
-let time_ = 0;
-
-// 生成随机地雷位置
-while (Ynum.length < max) {
-    j = Math.floor(Math.random() * rows);
-    k = Math.floor(Math.random() * cols);
-    let isDuplicate = false;
-    for (let index = 0; index < Xnum.length; index++) {
-        if (Xnum[index] === j && Ynum[index] === k) {
-            isDuplicate = true;
-            break;
-        }
-    }
-    if (!isDuplicate) {
-        Xnum.push(j);
-        Ynum.push(k);
-    }
-}
-
-// 标记地雷位置并计算地雷总数
-for (i = 0; i < Math.min(Xnum.length, Ynum.length); i++) {
-    mines[Xnum[i] + '-' + Ynum[i]] = 1;
-}
-
-for (i = 0; i < rows; i++) {
-    for (j = 0; j < cols; j++) {
-        minesCount += mines[i + '-' + j] || 0;
-    }
-}
-
-// 获取页面元素
-const box = document.querySelector('.box');
-const message = document.querySelector('.message');
-message.innerHTML = `地雷：<div class="number-3" style="display: inline-block;">${minesCount}</div>`;
-const timeDiv = document.querySelector('.time');
-timeDiv.innerHTML = time_;
-
-// 生成扫雷格子
-for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-        const isMines = mines[i + '-' + j];
-        const number = Object.values({
-            0: mines[`${i - 1}-${j - 1}`],
-            1: mines[`${i - 1}-${j}`],
-            2: mines[`${i - 1}-${j + 1}`],
-            3: mines[`${i}-${j - 1}`],
-            4: mines[`${i}-${j + 1}`],
-            5: mines[`${i + 1}-${j - 1}`],
-            6: mines[`${i + 1}-${j}`],
-            7: mines[`${i + 1}-${j + 1}`],
-        }).filter(v => v).length;
-        result.push(`<div class="item hide" data-v="${i}-${j}"
-            style="width:${size}px;height:${size}px"
-        >
-        ${isMines ? `<div class="circle"></div>` : `<div class="number number-${number ? number : ''}">${number ? number : ''}</div>`}
-        </div>`);
-    }
-}
-
-// 设置扫雷区域大小并插入格子
-box.style.width = `${cols * size}px`;
-box.style.height = `${rows * size}px`;
-box.innerHTML = result.join('');
-
-// 判断是否为移动端
-const isMobile = 'ontouchstart' in window;
-
-// 为每个格子添加事件监听器
-box.querySelectorAll('.item').forEach(v => {
-    let lastClickTime = 0;
-    let clickTimer;
-
-    const handleClick = () => {
-        if (!v.classList.contains('info')) {
-            v.classList.remove('hide');
-            if (minesCount === box.querySelectorAll('.hide').length) {
-                alert("你赢了！");
-                clearInterval(intervalId);
-            } else if (v.querySelector('.circle')) {
-                box.querySelectorAll('.item').forEach(el => {
-                    if (el.querySelector('.circle')) el.classList.remove('hide');
-                });
-                setTimeout(() => alert('你被炸死了'), 100);
-            } else if (v.innerText.trim() === '') {
-                const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
-                const loop = (indexs) => {
-                    [
-                        [indexs[0] - 1, indexs[1] - 1],
-                        [indexs[0] - 1, indexs[1]],
-                        [indexs[0] - 1, indexs[1] + 1],
-                        [indexs[0], indexs[1] - 1],
-                        [indexs[0], indexs[1] + 1],
-                        [indexs[0] + 1, indexs[1] - 1],
-                        [indexs[0] + 1, indexs[1]],
-                        [indexs[0] + 1, indexs[1] + 1],
-                    ].forEach(subIndexs => {
-                        const el = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
-                        if (el) {
-                            const text = el.querySelector('.number').innerText.trim();
-                            if (el.className.indexOf('hide') >= 0 && text === '') {
-                                if (!el.classList.contains('info')) {
-                                    el.classList.remove('hide');
-                                }
-                                loop(subIndexs);
-                            } else {
-                                if (!el.classList.contains('info')) {
-                                    el.classList.remove('hide');
-                                }
-                            }
-                        }
-                    });
-                };
-                loop(indexs);
-            } else {
-                const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
-                const neighbors = [
-                    [indexs[0] - 1, indexs[1] - 1],
-                    [indexs[0] - 1, indexs[1]],
-                    [indexs[0] - 1, indexs[1] + 1],
-                    [indexs[0], indexs[1] - 1],
-                    [indexs[0], indexs[1] + 1],
-                    [indexs[0] + 1, indexs[1] - 1],
-                    [indexs[0] + 1, indexs[1]],
-                    [indexs[0] + 1, indexs[1] + 1],
-                ];
-                const markedCount = neighbors.filter(([i, j]) => {
-                    const el = document.querySelector(`[data-v="${i}-${j}"]`);
-                    return el && el.classList.contains('info');
-                }).length;
-                const currentNumber = parseInt(v.innerText);
-                if (markedCount === currentNumber) {
-                    neighbors.forEach(([i, j]) => {
-                        const el = document.querySelector(`[data-v="${i}-${j}"]`);
-                        if (el &&!el.classList.contains('info') && el.classList.contains('hide')) {
-                            el.classList.remove('hide');
-                            if (el.innerText.trim() === '') {
-                                const newIndexs = [i, j];
-                                const newLoop = (newIndexs) => {
-                                    [
-                                        [newIndexs[0] - 1, newIndexs[1] - 1],
-                                        [newIndexs[0] - 1, newIndexs[1]],
-                                        [newIndexs[0] - 1, newIndexs[1] + 1],
-                                        [newIndexs[0], newIndexs[1] - 1],
-                                        [newIndexs[0], newIndexs[1] + 1],
-                                        [newIndexs[0] + 1, newIndexs[1] - 1],
-                                        [newIndexs[0] + 1, newIndexs[1]],
-                                        [newIndexs[0] + 1, newIndexs[1] + 1],
-                                    ].forEach(subIndexs => {
-                                        const subEl = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
-                                        if (subEl) {
-                                            const text = subEl.querySelector('.number').innerText.trim();
-                                            if (subEl.className.indexOf('hide') >= 0 && text === '') {
-                                                subEl.classList.remove('hide');
-                                                newLoop(subIndexs);
-                                            } else {
-                                                subEl.classList.remove('hide');
-                                            }
-                                        }
-                                    });
-                                };
-                                newLoop(newIndexs);
-                            }
-                        }
-                    });
+    <div class="box"></div>
+    <script>
+        const rows = 20;
+        const cols = 20;
+        const size = 30;
+        const result = [];
+        let minesCount = 0;
+        const mines = {};
+        const Xnum = [];
+        const Ynum = [];
+        let max = 20;
+        let k = 0;
+        let i = 0;
+        let j = 0;
+        let time = 0;
+        let time_ = 0;
+        while (Ynum.length < max) {
+            j = Math.floor(Math.random() * rows);
+            k = Math.floor(Math.random() * cols);
+            let isDuplicate = false;
+            for (let index = 0; index < Xnum.length; index++) {
+                if (Xnum[index] === j && Ynum[index] === k) {
+                    isDuplicate = true;
+                    break;
                 }
             }
-        }
-    };
-
-    const handleMark = () => {
-        if (v.classList.contains('hide')) {
-            v.classList.toggle('info');
-            message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`;
-        }
-    };
-
-    if (isMobile) {
-        v.addEventListener('touchstart', function (e) {
-            e.preventDefault();
-            const currentTime = Date.now();
-            const timeDifference = currentTime - lastClickTime;
-
-            if (timeDifference < 200) {
-                // 双击操作，进行打开
-                clearTimeout(clickTimer);
-                handleClick();
-                lastClickTime = 0;
-            } else {
-                // 单击操作，先设置定时器
-                lastClickTime = currentTime;
-                clickTimer = setTimeout(() => {
-                    handleMark();
-                }, 200);
+            if (!isDuplicate) {
+                Xnum.push(j);
+                Ynum.push(k);
             }
+        }
+        for (i = 0; i < Math.min(Xnum.length, Ynum.length); i++) {
+            mines[Xnum[i] + '-' + Ynum[i]] = 1;
+        }
+        console.log(Xnum, Ynum);
+        for (i = 0; i < rows; i++) {
+            for (j = 0; j < cols; j++) {
+                //Math.random()>0.8
+                minesCount += mines[i + '-' + j] || 0;
+            }
+        }
+        const box = document.querySelector('.box');
+        const message = document.querySelector('.message');
+        message.innerHTML = `地雷：<div class="number-3" style="display: inline-block;">${minesCount}</div>`;
+        const timeDiv = document.querySelector('.time');
+        timeDiv.innerHTML = `时间：<div class="number-3" style="display: inline-block;">${time_}</div>`;
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const isMines = mines[i + '-' + j];
+                const number = Object.values({
+                    0: mines[`${i - 1}-${j - 1}`],
+                    1: mines[`${i - 1}-${j}`],
+                    2: mines[`${i - 1}-${j + 1}`],
+                    3: mines[`${i}-${j - 1}`],
+                    4: mines[`${i}-${j + 1}`],
+                    5: mines[`${i + 1}-${j - 1}`],
+                    6: mines[`${i + 1}-${j}`],
+                    7: mines[`${i + 1}-${j + 1}`],
+                }).filter(v => v).length;
+                result.push(`<div class="item hide" data-v="${i}-${j}"
+                    style="width:${size}px;height:${size}px"
+                >
+                ${isMines? `<div class="circle"></div>` : `<div class="number number-${number? number : ''}">${number? number : ''}</div>`}
+                </div>`);
+            }
+        }
+        box.style.width = `${cols * size}px`;
+        box.style.height = `${rows * size}px`;
+        box.innerHTML = result.join('');
+
+        const LONG_PRESS_TIME = 300; // 长按时间阈值（毫秒）
+        let touchStartTime;
+
+        box.querySelectorAll('.item').forEach(v => {
+            v.addEventListener('touchstart', e => {
+                touchStartTime = Date.now();
+            });
+
+            v.addEventListener('touchend', e => {
+                const touchDuration = Date.now() - touchStartTime;
+                if (touchDuration < LONG_PRESS_TIME) {
+                    // 单击事件
+                    if (!v.classList.contains('info')) {
+                        v.classList.remove('hide');
+                        if (minesCount === box.querySelectorAll('.hide').length) {
+                            alert("你赢了！");
+                            clearInterval(intervalId);
+                        } else if (v.querySelector('.circle')) {
+                            box.querySelectorAll('.item').forEach(el => {
+                                if (el.querySelector('.circle')) el.classList.remove('hide');
+                            });
+                            setTimeout(() => alert('你被炸死了'), 100);
+                        } else if (v.innerText.trim() === '') {
+                            const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
+                            const loop = (indexs) => {
+                                [
+                                    [indexs[0] - 1, indexs[1] - 1],
+                                    [indexs[0] - 1, indexs[1]],
+                                    [indexs[0] - 1, indexs[1] + 1],
+                                    [indexs[0], indexs[1] - 1],
+                                    [indexs[0], indexs[1] + 1],
+                                    [indexs[0] + 1, indexs[1] - 1],
+                                    [indexs[0] + 1, indexs[1]],
+                                    [indexs[0] + 1, indexs[1] + 1],
+                                ].forEach(subIndexs => {
+                                    const el = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
+                                    if (el) {
+                                        const text = el.querySelector('.number').innerText.trim();
+                                        if (el.className.indexOf('hide') >= 0 && text === '') {
+                                            if (!el.classList.contains('info')) {
+                                                el.classList.remove('hide');
+                                            }
+                                            loop(subIndexs);
+                                        } else {
+                                            if (!el.classList.contains('info')) {
+                                                el.classList.remove('hide');
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                            loop(indexs);
+                        } else {
+                            // 点击数字时，处理九宫格逻辑
+                            const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
+                            const neighbors = [
+                                [indexs[0] - 1, indexs[1] - 1],
+                                [indexs[0] - 1, indexs[1]],
+                                [indexs[0] - 1, indexs[1] + 1],
+                                [indexs[0], indexs[1] - 1],
+                                [indexs[0], indexs[1] + 1],
+                                [indexs[0] + 1, indexs[1] - 1],
+                                [indexs[0] + 1, indexs[1]],
+                                [indexs[0] + 1, indexs[1] + 1],
+                            ];
+                            const markedCount = neighbors.filter(([i, j]) => {
+                                const el = document.querySelector(`[data-v="${i}-${j}"]`);
+                                return el && el.classList.contains('info');
+                            }).length;
+                            const currentNumber = parseInt(v.innerText);
+                            if (markedCount === currentNumber) {
+                                neighbors.forEach(([i, j]) => {
+                                    const el = document.querySelector(`[data-v="${i}-${j}"]`);
+                                    if (el &&!el.classList.contains('info') && el.classList.contains('hide')) {
+                                        el.classList.remove('hide');
+                                        if (el.innerText.trim() === '') {
+                                            const newIndexs = [i, j];
+                                            const newLoop = (newIndexs) => {
+                                                [
+                                                    [newIndexs[0] - 1, newIndexs[1] - 1],
+                                                    [newIndexs[0] - 1, newIndexs[1]],
+                                                    [newIndexs[0] - 1, newIndexs[1] + 1],
+                                                    [newIndexs[0], newIndexs[1] - 1],
+                                                    [newIndexs[0], newIndexs[1] + 1],
+                                                    [newIndexs[0] + 1, newIndexs[1] - 1],
+                                                    [newIndexs[0] + 1, newIndexs[1]],
+                                                    [newIndexs[0] + 1, newIndexs[1] + 1],
+                                                ].forEach(subIndexs => {
+                                                    const subEl = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
+                                                    if (subEl) {
+                                                        const text = subEl.querySelector('.number').innerText.trim();
+                                                        if (subEl.className.indexOf('hide') >= 0 && text === '') {
+                                                            subEl.classList.remove('hide');
+                                                            newLoop(subIndexs);
+                                                        } else {
+                                                            subEl.classList.remove('hide');
+                                                        }
+                                                    }
+                                                });
+                                            };
+                                            newLoop(newIndexs);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                } else {
+                    // 长按事件
+                    if (v.classList.contains('hide')) {
+                        v.classList.toggle('info');
+                        message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`;
+                    }
+                }
+            });
+
+            // 桌面端仍然保留原有的点击和右键事件
+            v.addEventListener('click', e => {
+                if (!v.classList.contains('info')) {
+                    v.classList.remove('hide');
+                    if (minesCount === box.querySelectorAll('.hide').length) {
+                        alert("你赢了！");
+                        clearInterval(intervalId);
+                    } else if (v.querySelector('.circle')) {
+                        box.querySelectorAll('.item').forEach(el => {
+                            if (el.querySelector('.circle')) el.classList.remove('hide');
+                        });
+                        setTimeout(() => alert('你被炸死了'), 100);
+                    } else if (v.innerText.trim() === '') {
+                        const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
+                        const loop = (indexs) => {
+                            [
+                                [indexs[0] - 1, indexs[1] - 1],
+                                [indexs[0] - 1, indexs[1]],
+                                [indexs[0] - 1, indexs[1] + 1],
+                                [indexs[0], indexs[1] - 1],
+                                [indexs[0], indexs[1] + 1],
+                                [indexs[0] + 1, indexs[1] - 1],
+                                [indexs[0] + 1, indexs[1]],
+                                [indexs[0] + 1, indexs[1] + 1],
+                            ].forEach(subIndexs => {
+                                const el = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
+                                if (el) {
+                                    const text = el.querySelector('.number').innerText.trim();
+                                    if (el.className.indexOf('hide') >= 0 && text === '') {
+                                        if (!el.classList.contains('info')) {
+                                            el.classList.remove('hide');
+                                        }
+                                        loop(subIndexs);
+                                    } else {
+                                        if (!el.classList.contains('info')) {
+                                            el.classList.remove('hide');
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                        loop(indexs);
+                    } else {
+                        // 点击数字时，处理九宫格逻辑
+                        const indexs = v.getAttribute('data-v').split('-').map(v => Number(v));
+                        const neighbors = [
+                            [indexs[0] - 1, indexs[1] - 1],
+                            [indexs[0] - 1, indexs[1]],
+                            [indexs[0] - 1, indexs[1] + 1],
+                            [indexs[0], indexs[1] - 1],
+                            [indexs[0], indexs[1] + 1],
+                            [indexs[0] + 1, indexs[1] - 1],
+                            [indexs[0] + 1, indexs[1]],
+                            [indexs[0] + 1, indexs[1] + 1],
+                        ];
+                        const markedCount = neighbors.filter(([i, j]) => {
+                            const el = document.querySelector(`[data-v="${i}-${j}"]`);
+                            return el && el.classList.contains('info');
+                        }).length;
+                        const currentNumber = parseInt(v.innerText);
+                        if (markedCount === currentNumber) {
+                            neighbors.forEach(([i, j]) => {
+                                const el = document.querySelector(`[data-v="${i}-${j}"]`);
+                                if (el &&!el.classList.contains('info') && el.classList.contains('hide')) {
+                                    el.classList.remove('hide');
+                                    if (el.innerText.trim() === '') {
+                                        const newIndexs = [i, j];
+                                        const newLoop = (newIndexs) => {
+                                            [
+                                                [newIndexs[0] - 1, newIndexs[1] - 1],
+                                                [newIndexs[0] - 1, newIndexs[1]],
+                                                [newIndexs[0] - 1, newIndexs[1] + 1],
+                                                [newIndexs[0], newIndexs[1] - 1],
+                                                [newIndexs[0], newIndexs[1] + 1],
+                                                [newIndexs[0] + 1, newIndexs[1] - 1],
+                                                [newIndexs[0] + 1, newIndexs[1]],
+                                                [newIndexs[0] + 1, newIndexs[1] + 1],
+                                            ].forEach(subIndexs => {
+                                                const subEl = document.querySelector(`[data-v="${subIndexs.join('-')}"]`);
+                                                if (subEl) {
+                                                    const text = subEl.querySelector('.number').innerText.trim();
+                                                    if (subEl.className.indexOf('hide') >= 0 && text === '') {
+                                                        subEl.classList.remove('hide');
+                                                        newLoop(subIndexs);
+                                                    } else {
+                                                        subEl.classList.remove('hide');
+                                                    }
+                                                }
+                                            });
+                                        };
+                                        newLoop(newIndexs);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+            v.addEventListener('contextmenu', e => {
+                if (v.classList.contains('hide')) {
+                    v.classList.toggle('info');
+                    message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`;
+                }
+                e.preventDefault();
+            });
         });
-    } else {
-        v.addEventListener('click', handleClick);
+        const intervalId = setInterval(() => {
+            time_++;
+            const timeDiv = document.querySelector('.time');
+            timeDiv.innerHTML = `时间：<div class="number-3" style="display: inline-block;">${time_}</div>`;
+        }, 1000);
+    </script>
+</body>
 
-        v.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-            handleMark();
-        });
-    }
-});
-
-// 启动计时器
-const intervalId = setInterval(() => {
-    time_++;
-    const timeDiv = document.querySelector('.time');
-    timeDiv.innerHTML = `时间：<div class="number-3" style="display: inline-block;">${time_}</div>`;
-}, 1000);
-    
-    
-</SCript>
-
-</html>
+</html>    
