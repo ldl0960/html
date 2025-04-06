@@ -171,18 +171,20 @@
         box.style.height = `${rows * size}px`;
         box.innerHTML = result.join('');
 
-        const LONG_PRESS_TIME = 300; // 长按时间阈值（毫秒）
-        let touchStartTime;
-
         box.querySelectorAll('.item').forEach(v => {
-            v.addEventListener('touchstart', e => {
-                touchStartTime = Date.now();
+            let timeOutEvent = 0;
+
+            // 开始按
+            v.addEventListener('touchstart', function () {
+                timeOutEvent = setTimeout(() => longPress(v), 500); // 设置定时器，长按 500 毫秒触发长按事件
+                return false;
             });
 
-            v.addEventListener('touchend', e => {
-                const touchDuration = Date.now() - touchStartTime;
-                if (touchDuration < LONG_PRESS_TIME) {
-                    // 单击事件
+            // 手释放，如果在 500 毫秒内就释放，则取消长按事件，此时可以执行 onclick 应该执行的事件
+            v.addEventListener('touchend', function () {
+                clearTimeout(timeOutEvent); // 清除定时器
+                if (timeOutEvent!== 0) {
+                    // 这里执行单击事件逻辑
                     if (!v.classList.contains('info')) {
                         v.classList.remove('hide');
                         if (minesCount === box.querySelectorAll('.hide').length) {
@@ -278,17 +280,28 @@
                             }
                         }
                     }
-                } else {
-                    // 长按事件
-                    if (v.classList.contains('hide')) {
-                        v.classList.toggle('info');
-                        message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`;
-                    }
                 }
+                timeOutEvent = 0;
+                return false;
             });
 
+            // 如果手指有移动，则取消所有事件，此时说明用户只是要移动而不是长按
+            v.addEventListener('touchmove', function () {
+                clearTimeout(timeOutEvent); // 清除定时器
+                timeOutEvent = 0;
+            });
+
+            // 长按事件处理函数
+            function longPress(v) {
+                timeOutEvent = 0;
+                if (v.classList.contains('hide')) {
+                    v.classList.toggle('info');
+                    message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`;
+                }
+            }
+
             // 桌面端仍然保留原有的点击和右键事件
-            v.addEventListener('click', e => {
+            v.addEventListener('click', function (e) {
                 if (!v.classList.contains('info')) {
                     v.classList.remove('hide');
                     if (minesCount === box.querySelectorAll('.hide').length) {
@@ -385,7 +398,7 @@
                     }
                 }
             });
-            v.addEventListener('contextmenu', e => {
+            v.addEventListener('contextmenu', function (e) {
                 if (v.classList.contains('hide')) {
                     v.classList.toggle('info');
                     message.innerHTML = `地雷：${minesCount - box.querySelectorAll('.info').length}`;
